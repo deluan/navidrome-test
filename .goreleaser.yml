@@ -176,5 +176,5 @@ announce:
   discord:
     enabled: true
     author: "NavidromeBot"
-    icon_url: "https://github.com/navidrome/navidrome/blob/master/resources/logo-192x192.png"
+    icon_url: "https://raw.githubusercontent.com/navidrome/navidrome/master/resources/logo-192x192.png"
     message_template: "Navidrome {{ .Tag }} is out! Check it out: https://github.com/navidrome/navidrome/releases/tag/{{ .Tag }}"
