@@ -120,6 +120,9 @@ jobs:
     needs: [js, i18n-lint]
     runs-on: ubuntu-latest
     container: deluan/ci-goreleaser:1.23.0-1
+    env:
+      DISCORD_WEBHOOK_ID: ${{secrets.DISCORD_WEBHOOK_ID}}
+      DISCORD_WEBHOOK_TOKEN: ${{secrets.DISCORD_WEBHOOK_TOKEN}}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
