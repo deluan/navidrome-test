@@ -126,6 +126,7 @@ snapshot:
 
 release:
   # draft: true
+  mode: append
   footer: |
     **Full Changelog**: https://github.com/deluan/navidrome-test/compare/{{ .PreviousTag }}...{{ .Tag }}
 
@@ -173,6 +174,7 @@ changelog:
 announce:
   # skip: '{{ if isEnvSet "DISCORD_WEBHOOK_ID" }}false{{ else }}true{{ end }}'
   discord:
+    enabled: true
     author: "NavidromeBot"
     icon_url: "https://github.com/navidrome/navidrome/blob/master/resources/logo-192x192.png"
     message_template: "Navidrome {{ .Tag }} is out! Check it out: https://github.com/navidrome/navidrome/releases/tag/{{ .Tag }}"
