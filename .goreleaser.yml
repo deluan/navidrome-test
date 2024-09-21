@@ -171,8 +171,8 @@ changelog:
       order: 9999
 
 announce:
+  skip: '{{ not isEnvSet "DISCORD_WEBHOOK_ID" }}'
   discord:
-    enabled: '{{ isEnvSet "DISCORD_WEBHOOK_ID" }}'
     author: "NavidromeBot"
     icon_url: "https://github.com/navidrome/navidrome/blob/master/resources/logo-192x192.png"
     message_template: "Navidrome {{ .Tag }} is out! Check it out: https://github.com/navidrome/navidrome/releases/tag/{{ .Tag }}"
