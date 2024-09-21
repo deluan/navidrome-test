@@ -172,7 +172,7 @@ changelog:
 
 announce:
   discord:
-    enabled: "{{ indexOrDefault .Env "DISCORD_WEBHOOK_ID" "false"}}"
+    enabled: {{ if index .Env "ENV_WITH_DEFAULT"  }}true{{ else }}false{{ end }}
     author: "NavidromeBot"
     icon_url: "https://github.com/navidrome/navidrome/blob/master/resources/logo-192x192.png"
     message_template: "Navidrome {{ .Tag }} is out! Check it out: https://github.com/navidrome/navidrome/releases/tag/{{ .Tag }}"
