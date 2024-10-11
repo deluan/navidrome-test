@@ -143,6 +143,13 @@ jobs:
           git describe --dirty --always --tags
           git tag --sort=-committerdate | head -n 1
           echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          GIT_TAG="${GITHUB_REF##refs/tags/}"
+          GIT_BRANCH="${GITHUB_REF##refs/heads/}"
+          PR_NUM=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          echo $GITHUB_REF
+          echo $GIT_TAG
+          echo $GIT_BRANCH
+          echo $PR_NUM
 
       - name: Build
         uses: docker/build-push-action@v6
