@@ -9,6 +9,9 @@ on:
     branches:
       - master
 
+env:
+  CROSS_TAGLIB_VERSION: "2.0.2-1"
+
 jobs:
 #  go-lint:
 #    name: Lint Go code
@@ -39,26 +42,33 @@ jobs:
 #            echo 'To fix this check, run "make format" and commit the changes'
 #            exit 1
 #          fi
-#  go:
-#    name: Test Go code
-#    runs-on: ubuntu-latest
-#    container: deluan/ci-goreleaser:1.23.2-1
-#    steps:
-#      - name: Check out code into the Go module directory
-#        uses: actions/checkout@v4
-#
+  go:
+    name: Test Go code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+
+      - name: Download TagLib
+        run: |
+          FILE=taglib-linux-amd64.tar.gz
+          wget https://github.com/navidrome/cross-taglib/releases/download/v${{env.CROSS_TAGLIB_VERSION}}/${FILE}
+          mkdir /taglib
+          tar -xzf ${FILE} -C /taglib
+          ls -la 
+          ls -la /taglib
+
 #      - name: Config workspace folder as trusted
 #        run: git config --global --add safe.directory $GITHUB_WORKSPACE;  git describe --dirty --always --tags
-#
-#      - name: Download dependencies
-#        if: steps.cache-go.outputs.cache-hit != 'true'
-#        continue-on-error: ${{contains(matrix.go_version, 'beta') || contains(matrix.go_version, 'rc')}}
-#        run: go mod download
-#
-#      - name: Test
-#        continue-on-error: ${{contains(matrix.go_version, 'beta') || contains(matrix.go_version, 'rc')}}
-#        run: go test -shuffle=on -race -cover ./... -v
-#
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Test
+        run: |
+          export PKG_CONFIG_PATH=/taglib/lib/pkgconfig
+          go test -shuffle=on -race -cover ./... -v
+
 #  js:
 #    name: Build JS bundle
 #    runs-on: ubuntu-latest
@@ -117,6 +127,7 @@ jobs:
 
   build:
     name: Build
+    needs: [go]
 #    needs: [js, go, go-lint, i18n-lint]
     strategy:
       matrix:
