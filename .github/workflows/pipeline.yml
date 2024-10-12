@@ -151,11 +151,11 @@ jobs:
 #          echo $GIT_BRANCH
 #          echo $PR_NUM
 #
-#      - name: Sanitize platform name
-#        id: set-platform
-#        run: |
-#          PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '-')
-#          echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
+      - name: Sanitize platform name
+        id: set-platform
+        run: |
+          PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '-')
+          echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
 #
 #      - name: Build
 #        uses: docker/build-push-action@v6
@@ -173,7 +173,7 @@ jobs:
 #            GIT_TAG=${{ env.GIT_TAG }}
 
       - run: |
-          mkdir -p ./output
+          mkdir -p ./output/${{ env.PLATFORM }}
           echo ${{ env.PLATFORM }} > ./output/${{ env.PLATFORM }}/navidrome
 
       - uses: actions/upload-artifact@v4
