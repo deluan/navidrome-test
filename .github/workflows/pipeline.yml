@@ -160,7 +160,7 @@ jobs:
 #          file: Dockerfile
 #          platforms: ${{ matrix.platform }}
 #          outputs: |
-#            type=local,dest=./dist
+#            type=local,dest=./output
 #          target: binary
 #          build-args: |
 #            GIT_SHA=${{ env.GIT_SHA }}
@@ -173,13 +173,13 @@ jobs:
           echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
 
       - run: |
-          mkdir -p ./dist
-          echo ${{ env.PLATFORM }} > ./dist/navidrome
+          mkdir -p ./output
+          echo ${{ env.PLATFORM }} > ./output/navidrome.${{ env.PLATFORM }}.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: navidrome-${{ env.PLATFORM }}
-          path: ./dist
+          path: ./output
           retention-days: 7
 
   release:
