@@ -36,10 +36,7 @@ jobs:
           problem-matchers: true
           args: --timeout 2m
 
-      - name: Install goimports
-        run: go install golang.org/x/tools/cmd/goimports@latest
-
-      - run: goimports -w `find . -name '*.go' | grep -v '_gen.go$'`
+      - run: go run golang.org/x/tools/cmd/goimports@latest -w `find . -name '*.go' | grep -v '_gen.go$'`
       - run: go mod tidy
       - name: Verify no changes from goimports and go mod tidy
         run: |
@@ -62,14 +59,15 @@ jobs:
           wget https://github.com/navidrome/cross-taglib/releases/download/v${{env.CROSS_TAGLIB_VERSION}}/${FILE}
           mkdir taglib
           tar -xzf ${FILE} -C taglib
+          PKG_CONFIG_PREFIX=$(pwd)/taglib
+          echo "PKG_CONFIG_PREFIX=${PKG_CONFIG_PREFIX}" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig" >> $GITHUB_ENV
 
       - name: Download dependencies
         run: go mod download
 
       - name: Test
         run: |
-          export PKG_CONFIG_PREFIX=$(pwd)/taglib
-          export PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig
           pkg-config --define-prefix --cflags --libs taglib # for debugging
           go test -shuffle=on -race -cover ./... -v
 
