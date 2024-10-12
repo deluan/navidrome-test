@@ -123,58 +123,58 @@ jobs:
         platform: [ linux/amd64, linux/arm64, linux/arm/v5, linux/arm/v6, linux/arm/v7, linux/386, darwin/amd64, darwin/arm64, windows/amd64, windows/386 ]
     runs-on: ubuntu-latest
     steps:
-      - name: Set up QEMU
-        id: qemu
-        uses: docker/setup-qemu-action@v3
+#      - name: Set up QEMU
+#        id: qemu
+#        uses: docker/setup-qemu-action@v3
+#
+#      - name: Set up Docker Buildx
+#        id: buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - uses: actions/checkout@v4
+#
+#      - name: Get Git Version
+#        run: |
+#          GIT_TAG=$(git tag --sort=-committerdate | head -n 1)
+#          if [ -n "$GIT_TAG" ]; then
+#            GIT_TAG=${GIT_TAG}-SNAPSHOT
+#            echo "GIT_TAG=$GIT_TAG" >> $GITHUB_ENV
+#          fi
+#          git describe --dirty --always --tags
+#          git tag --sort=-committerdate | head -n 1
+#          echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+#          GIT_TAG="${GITHUB_REF##refs/tags/}"
+#          GIT_BRANCH="${GITHUB_REF##refs/heads/}"
+#          PR_NUM=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+#          echo $GITHUB_REF
+#          echo $GIT_TAG
+#          echo $GIT_BRANCH
+#          echo $PR_NUM
+#
+#      - name: Sanitize platform name
+#        id: set-platform
+#        run: |
+#          PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '-')
+#          echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
+#
+#      - name: Build
+#        uses: docker/build-push-action@v6
+#        env:
+#          DOCKER_BUILD_SUMMARY: false
+#        with:
+#          context: .
+#          file: Dockerfile
+#          platforms: ${{ matrix.platform }}
+#          outputs: |
+#            type=local,dest=./output/${{ env.PLATFORM }}
+#          target: binary
+#          build-args: |
+#            GIT_SHA=${{ env.GIT_SHA }}
+#            GIT_TAG=${{ env.GIT_TAG }}
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-
-      - uses: actions/checkout@v4
-
-      - name: Get Git Version
-        run: |
-          GIT_TAG=$(git tag --sort=-committerdate | head -n 1)
-          if [ -n "$GIT_TAG" ]; then
-            GIT_TAG=${GIT_TAG}-SNAPSHOT
-            echo "GIT_TAG=$GIT_TAG" >> $GITHUB_ENV
-          fi
-          git describe --dirty --always --tags
-          git tag --sort=-committerdate | head -n 1
-          echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          GIT_TAG="${GITHUB_REF##refs/tags/}"
-          GIT_BRANCH="${GITHUB_REF##refs/heads/}"
-          PR_NUM=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          echo $GITHUB_REF
-          echo $GIT_TAG
-          echo $GIT_BRANCH
-          echo $PR_NUM
-
-      - name: Build
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-        with:
-          context: .
-          file: Dockerfile
-          platforms: ${{ matrix.platform }}
-          outputs: |
-            type=local,dest=./output
-          target: binary
-          build-args: |
-            GIT_SHA=${{ env.GIT_SHA }}
-            GIT_TAG=${{ env.GIT_TAG }}
-
-      - name: Sanitize platform name
-        id: set-platform
-        run: |
-          PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '-')
-          echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
-
-#      - run: |
-#          mkdir -p ./output
-#          echo ${{ env.PLATFORM }} > ./output/navidrome.${{ env.PLATFORM }}.txt
+      - run: |
+          mkdir -p ./output
+          echo ${{ env.PLATFORM }} > ./output/${{ env.PLATFORM }}/navidrome
 
       - uses: actions/upload-artifact@v4
         with:
@@ -187,13 +187,15 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
-          path: ./output
+          path: ./binaries
           pattern: navidrome-*
           merge-multiple: true
 
-      - run: ls -lR ./output
+      - run: ls -lR ./binaries
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
