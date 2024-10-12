@@ -25,6 +25,7 @@ jobs:
           wget https://github.com/navidrome/cross-taglib/releases/download/v${{env.CROSS_TAGLIB_VERSION}}/${FILE}
           mkdir taglib
           tar -xzf ${FILE} -C taglib
+          rm ${FILE}
           PKG_CONFIG_PREFIX=$(pwd)/taglib
           echo "PKG_CONFIG_PREFIX=${PKG_CONFIG_PREFIX}" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig" >> $GITHUB_ENV
@@ -59,6 +60,7 @@ jobs:
           wget https://github.com/navidrome/cross-taglib/releases/download/v${{env.CROSS_TAGLIB_VERSION}}/${FILE}
           mkdir taglib
           tar -xzf ${FILE} -C taglib
+          rm ${FILE}
           PKG_CONFIG_PREFIX=$(pwd)/taglib
           echo "PKG_CONFIG_PREFIX=${PKG_CONFIG_PREFIX}" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig" >> $GITHUB_ENV
