@@ -37,7 +37,8 @@ jobs:
           problem-matchers: true
           args: --timeout 2m
 
-      - run: go run golang.org/x/tools/cmd/goimports@latest -w `find . -name '*.go' | grep -v '_gen.go$'`
+      - name: Run go goimports
+        run: go run golang.org/x/tools/cmd/goimports@latest -w `find . -name '*.go' | grep -v '_gen.go$'`
       - run: go mod tidy
       - name: Verify no changes from goimports and go mod tidy
         run: |
