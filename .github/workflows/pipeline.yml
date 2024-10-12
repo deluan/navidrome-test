@@ -57,16 +57,14 @@ jobs:
           tar -xzf ${FILE} -C taglib
           ls -la 
 
-#      - name: Config workspace folder as trusted
-#        run: git config --global --add safe.directory $GITHUB_WORKSPACE;  git describe --dirty --always --tags
-
       - name: Download dependencies
         run: go mod download
 
       - name: Test
         run: |
-          export PKG_CONFIG_PREFIX=./taglib
+          export PKG_CONFIG_PREFIX=$(pwd)/taglib
           export PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig
+          ls -la $PKG_CONFIG_PATH
           go test -shuffle=on -race -cover ./... -v
 
 #  js:
