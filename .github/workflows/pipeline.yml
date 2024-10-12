@@ -65,7 +65,8 @@ jobs:
 
       - name: Test
         run: |
-          export PKG_CONFIG_PATH=taglib/lib/pkgconfig
+          export PKG_CONFIG_PREFIX=./taglib
+          export PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig
           go test -shuffle=on -race -cover ./... -v
 
 #  js:
