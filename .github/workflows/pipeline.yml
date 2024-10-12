@@ -13,35 +13,41 @@ env:
   CROSS_TAGLIB_VERSION: "2.0.2-1"
 
 jobs:
-#  go-lint:
-#    name: Lint Go code
-#    runs-on: ubuntu-latest
-#    container: deluan/ci-goreleaser:1.23.2-1
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Config workspace folder as trusted
-#        run: git config --global --add safe.directory $GITHUB_WORKSPACE;  git describe --dirty --always --tags
-#
-#      - name: golangci-lint
-#        uses: golangci/golangci-lint-action@v6
-#        with:
-#          version: latest
-#          problem-matchers: true
-#          args: --timeout 2m
-#
-#      - name: Install goimports
-#        run: go install golang.org/x/tools/cmd/goimports@latest
-#
-#      - run: goimports -w `find . -name '*.go' | grep -v '_gen.go$'`
-#      - run: go mod tidy
-#      - name: Verify no changes from goimports and go mod tidy
-#        run: |
-#          git status --porcelain
-#          if [ -n "$(git status --porcelain)" ]; then
-#            echo 'To fix this check, run "make format" and commit the changes'
-#            exit 1
-#          fi
+  go-lint:
+    name: Lint Go code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download TagLib
+        run: |
+          FILE=taglib-linux-amd64.tar.gz
+          wget https://github.com/navidrome/cross-taglib/releases/download/v${{env.CROSS_TAGLIB_VERSION}}/${FILE}
+          mkdir taglib
+          tar -xzf ${FILE} -C taglib
+          echo "PKG_CONFIG_PREFIX=$(pwd)/taglib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          problem-matchers: true
+          args: --timeout 2m
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - run: goimports -w `find . -name '*.go' | grep -v '_gen.go$'`
+      - run: go mod tidy
+      - name: Verify no changes from goimports and go mod tidy
+        run: |
+          git status --porcelain
+          if [ -n "$(git status --porcelain)" ]; then
+            echo 'To fix this check, run "make format" and commit the changes'
+            exit 1
+          fi
+
   go:
     name: Test Go code
     runs-on: ubuntu-latest
@@ -124,7 +130,7 @@ jobs:
 
   build:
     name: Build
-    needs: [go]
+    needs: [go, go-lint]
 #    needs: [js, go, go-lint, i18n-lint]
     strategy:
       matrix:
@@ -179,6 +185,7 @@ jobs:
           build-args: |
             GIT_SHA=${{ env.GIT_SHA }}
             GIT_TAG=${{ env.GIT_TAG }}
+            CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
 
 #      - run: |
 #          mkdir -p ./output/${{ env.PLATFORM }}
