@@ -154,7 +154,7 @@ jobs:
       - name: Sanitize platform name
         id: set-platform
         run: |
-          PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '-')
+          PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '_')
           echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
 #
 #      - name: Build
