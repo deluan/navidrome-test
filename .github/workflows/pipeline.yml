@@ -63,9 +63,7 @@ jobs:
         run: |
           export PKG_CONFIG_PREFIX=$(pwd)/taglib
           export PKG_CONFIG_PATH=${PKG_CONFIG_PREFIX}/lib/pkgconfig
-          pkg-config --cflags --libs taglib
-          pkg-config --define-prefix --cflags --libs taglib
-          export CGO_CFLAGS="-I$(pwd)/taglib/include/taglib"
+          pkg-config --define-prefix --cflags --libs taglib # for debugging
           go test -shuffle=on -race -cover ./... -v
 
 #  js:
