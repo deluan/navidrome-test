@@ -11,6 +11,7 @@ on:
 
 env:
   CROSS_TAGLIB_VERSION: "2.0.2-1"
+  IS_RELEASE: startsWith(github.ref, 'refs/tags/')
 
 jobs:
   go-lint:
@@ -111,12 +112,6 @@ jobs:
           cd ui
           npm run build
 
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: js-bundle
-#          path: ui/build
-#          retention-days: 7
-#
   i18n-lint:
     name: Lint i18n files
     runs-on: ubuntu-latest
@@ -214,8 +209,8 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           version: '~> v2'
-          args: release --clean --skip=publish --snapshot -f release/goreleaser.yml
-#        env:
+          args: ${{ env.IS_RELEASE && 'release --clean -f release/goreleaser.yml' || 'release --clean --skip=publish --snapshot -f release/goreleaser.yml' }}
+#          env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 #  binaries:
