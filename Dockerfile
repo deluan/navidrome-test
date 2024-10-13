@@ -92,7 +92,7 @@ COPY --from=build /out /
 
 #####################################################
 ### Build Final Image
-FROM --platform=$BUILDPLATFORM alpine:3.20 as final
+FROM --platform=$BUILDPLATFORM alpine:3.20 AS final
 LABEL maintainer="deluan@navidrome.org"
 
 # Install ffmpeg and mpv
