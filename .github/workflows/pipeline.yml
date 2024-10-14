@@ -180,6 +180,22 @@ jobs:
             GIT_TAG=${{ env.GIT_TAG }}
             CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
 
+      - name: Push Image
+        uses: docker/build-push-action@v6
+        # Only push images for linux platforms
+        if: startsWith(matrix.platform, 'linux/')
+        env:
+          DOCKER_BUILD_SUMMARY: false
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            GIT_SHA=${{ env.GIT_SHA }}
+            GIT_TAG=${{ env.GIT_TAG }}
+            CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
+
 #      - run: |
 #          mkdir -p ./output/${{ env.PLATFORM }}
 #          echo ${{ env.PLATFORM }} > ./output/${{ env.PLATFORM }}/navidrome
