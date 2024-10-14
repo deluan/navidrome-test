@@ -140,7 +140,6 @@ jobs:
       - name: Prepare Docker Buildx
         uses: ./.github/actions/prepare-docker
         id: docker
-        if: env.IS_LINUX == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           hub_repository: ${{ vars.DOCKER_HUB_REPO }}
