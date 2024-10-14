@@ -217,34 +217,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  release:
-    name: Release
-    needs: [build, msi]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: ./binaries
-          pattern: navidrome-*
-          merge-multiple: true
-
-      - run: ls -lR ./binaries
-
-      - name: Set RELEASE_FLAGS for snapshot releases
-        if: env.IS_RELEASE != 'true'
-        run: echo 'RELEASE_FLAGS=--skip=publish --snapshot' >> $GITHUB_ENV
-
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          version: '~> v2'
-          args: "release --clean -f release/goreleaser.yml ${{ env.RELEASE_FLAGS }}"
-#          env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
   push-manifest:
     name: Push Docker manifest
     runs-on: ubuntu-latest
@@ -303,7 +275,7 @@ jobs:
 
 
   msi:
-    name: Build and publish MSI files
+    name: Build MSI files
     needs: [build]
     runs-on: ubuntu-24.04
     steps:
@@ -319,6 +291,8 @@ jobs:
           path: ./binaries
           pattern: navidrome-windows*
           merge-multiple: true
+
+      - run: ls -lR ./binaries
 
       - name: Build MSI
         run: |
@@ -354,3 +328,30 @@ jobs:
           name: navidrome-msi-installers
           path: wix/*.msi
           retention-days: 7
+
+  release:
+    name: Release
+    needs: [build, msi, push-manifest]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./binaries
+          pattern: navidrome-*
+          merge-multiple: true
+
+      - run: ls -lR ./binaries
+
+      - name: Set RELEASE_FLAGS for snapshot releases
+        if: env.IS_RELEASE != 'true'
+        run: echo 'RELEASE_FLAGS=--skip=publish --snapshot' >> $GITHUB_ENV
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: '~> v2'
+          args: "release --clean -f release/goreleaser.yml ${{ env.RELEASE_FLAGS }}"
+#          env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
