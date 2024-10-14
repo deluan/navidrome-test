@@ -186,11 +186,13 @@ jobs:
         if: env.IS_LINUX == 'true'
         id: meta
         uses: docker/metadata-action@v5
+        env:
+          DOCKER_HUB_REPO: ${{ vars.DOCKER_HUB_REPO || 'deluan/navidrome' }}
         with:
           labels: |
             maintainer=deluan
           images: |
-            name=${{vars.DOCKER_HUB_REPO}}
+            name=${{env.DOCKER_HUB_REPO}}
             name=ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=pr
