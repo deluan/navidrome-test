@@ -6,14 +6,7 @@ output=$(echo "$@" | sed -n 's/.*-o \([^ ]*\).*/\1/p')
 # Ensure the directory part of the output exists
 mkdir -p "$(dirname "$output")"
 
-
-# build the source file name  from GOOS, GOARCH and GOARM.
-# Examples:
-#   GOOS=linux GOARCH=amd64 GOARM=7 -> linux_amd64
-#   GOOS=linux GOARCH=arm GOARM=7 -> linux_arm/v7
-#   GOOS=linux GOARCH=arm GOARM=6 -> linux_arm/v6
-#   GOOS=linux GOARCH=arm64 GOARM=5 -> linux_arm64
-
+# Build the source folder name based on GOOS, GOARCH and GOARM.
 source="${GOOS}_${GOARCH}"
 if [ "$GOARCH" = "arm" ]; then
     source="${source}_${GOARM}"
