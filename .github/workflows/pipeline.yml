@@ -181,7 +181,7 @@ jobs:
 #            GIT_TAG=${{ env.GIT_TAG }}
 #            CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
 
-      - name: Prepare Docker Hub push
+      - name: Check Docker Hub configuration
         if: env.IS_LINUX == 'true'
         env:
             DOCKER_HUB_REPO: ${{ vars.DOCKER_HUB_REPO }}
@@ -209,13 +209,21 @@ jobs:
             type=semver,pattern={{version}}
             type=raw,value=develop,enable={{is_default_branch}}
 
+      - name: Login to GitHub Container Registry
+        if: env.IS_LINUX == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push Image
         uses: docker/build-push-action@v6
         if: env.IS_LINUX == 'true'
         with:
           context: .
           file: Dockerfile
-          push: false
+          push: true
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
