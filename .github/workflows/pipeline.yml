@@ -284,9 +284,14 @@ jobs:
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ vars.DOCKER_HUB_USERNAME }}@sha256:%s ' *)          
 
-      - name: Inspect image
+      - name: Inspect image in ghcr.io
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.docker.outputs.version }}
+
+      - name: Inspect image in Docker Hub
+        if: vars.DOCKER_HUB_REPO != ''
+        run: |
+          docker buildx imagetools inspect ${{ vars.DOCKER_HUB_REPO }}:${{ steps.docker.outputs.version }}
 
       - name: Remove digests
         uses: geekyeggo/delete-artifact@v5

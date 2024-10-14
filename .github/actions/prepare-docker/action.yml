@@ -27,6 +27,9 @@ outputs:
   annotations:
     description: 'Docker image annotations'
     value: ${{ steps.meta.outputs.annotations }}
+  version:
+    description: 'Docker image version'
+    value: ${{ steps.meta.outputs.version }}
 
 runs:
   using: 'composite'
