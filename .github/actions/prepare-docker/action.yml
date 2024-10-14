@@ -1,9 +1,6 @@
 name: 'Prepare Docker Buildx environment'
 description: 'Downloads and extracts the TagLib library, adding it to PKG_CONFIG_PATH'
 inputs:
-  platform:
-    description: 'Platform to download TagLib for'
-    required: true
   github_token:
     description: 'GitHub token'
     required: true
