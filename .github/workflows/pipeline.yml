@@ -12,7 +12,6 @@ on:
 env:
   CROSS_TAGLIB_VERSION: "2.0.2-1"
   IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && 'true' || 'false' }}
-#  DOCKER_HUB_REPO: "deluan/navidrome"
 
 jobs:
   go-lint:
@@ -182,17 +181,28 @@ jobs:
 #            GIT_TAG=${{ env.GIT_TAG }}
 #            CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
 
+      - name: Prepare Docker Hub push
+        if: env.IS_LINUX == 'true'
+        env:
+            DOCKER_HUB_REPO: ${{ vars.DOCKER_HUB_REPO }}
+        run: |
+          if [ -n "$DOCKER_HUB_REPO" ]; then
+            echo "DOCKER_HUB_REPO=$DOCKER_HUB_REPO" >> $GITHUB_ENV
+            echo "DOCKER_HUB_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "DOCKER_HUB_REPO=none" >> $GITHUB_ENV
+            echo "DOCKER_HUB_ENABLED=false" >> $GITHUB_ENV
+          fi
+
       - name: Extract metadata for Docker image
         if: env.IS_LINUX == 'true'
         id: meta
         uses: docker/metadata-action@v5
-        env:
-          DOCKER_HUB_REPO: ${{ vars.DOCKER_HUB_REPO || 'deluan/navidrome' }}
         with:
           labels: |
             maintainer=deluan
           images: |
-            name=${{env.DOCKER_HUB_REPO}}
+            name=${{env.DOCKER_HUB_REPO}},enable=${{env.DOCKER_HUB_ENABLED}}
             name=ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=pr
