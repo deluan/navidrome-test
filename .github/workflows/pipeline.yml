@@ -119,11 +119,11 @@ jobs:
 
   build:
     name: Build
-#    needs: [js, go, go-lint, i18n-lint]
+    needs: [js, go, go-lint, i18n-lint]
     strategy:
       matrix:
-        platform: [ linux/amd64, windows/amd64, windows/386 ] #, linux/arm/v5, linux/arm/v6, linux/arm/v7, linux/386, darwin/amd64, darwin/arm64, windows/amd64, windows/386 ]
-#        platform: [ linux/amd64, linux/arm64, linux/arm/v5, linux/arm/v6, linux/arm/v7, linux/386, darwin/amd64, darwin/arm64, windows/amd64, windows/386 ]
+#        platform: [ linux/amd64, windows/amd64, windows/386 ] #, linux/arm/v5, linux/arm/v6, linux/arm/v7, linux/386, darwin/amd64, darwin/arm64, windows/amd64, windows/386 ]
+        platform: [ linux/amd64, linux/arm64, linux/arm/v5, linux/arm/v6, linux/arm/v7, linux/386, darwin/amd64, darwin/arm64, windows/amd64, windows/386 ]
     runs-on: ubuntu-latest
     env:
       IS_LINUX: ${{ startsWith(matrix.platform, 'linux/') && 'true' || 'false' }}
@@ -281,20 +281,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-#      - uses: actions/download-artifact@v4
-#        with:
-#          name: binaries
-#          path: dist
-
       - uses: actions/download-artifact@v4
         with:
           path: ./binaries
           pattern: navidrome-windows*
           merge-multiple: true
-
-      - run: |
-          pwd
-          ls -lR ./binaries
 
       - name: Build MSI files
         run: |
@@ -348,7 +339,7 @@ jobs:
       - run: ls -lR ./binaries
 
       - name: Set RELEASE_FLAGS for snapshot releases
-        if: env.IS_RELEASE != 'true'
+        if: env.IS_RELEASE == 'false'
         run: echo 'RELEASE_FLAGS=--skip=publish --snapshot' >> $GITHUB_ENV
 
       - name: Run GoReleaser
