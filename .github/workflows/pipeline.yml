@@ -315,7 +315,7 @@ jobs:
       - name: Upload MSI files
         uses: actions/upload-artifact@v4
         with:
-          name: navidrome-msi-installers
+          name: navidrome-windows-installers
           path: wix/*.msi
           retention-days: 7
 
@@ -335,7 +335,7 @@ jobs:
       - run: ls -lR ./binaries
 
       - name: Set RELEASE_FLAGS for snapshot releases
-        if: env.IS_RELEASE == 'false'
+        if: env.IS_RELEASE == 'true'
         run: echo 'RELEASE_FLAGS=--skip=publish --snapshot' >> $GITHUB_ENV
 
       - name: Run GoReleaser
@@ -343,5 +343,5 @@ jobs:
         with:
           version: '~> v2'
           args: "release --clean -f release/goreleaser.yml ${{ env.RELEASE_FLAGS }}"
-#          env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
