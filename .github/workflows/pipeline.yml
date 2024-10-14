@@ -146,10 +146,6 @@ jobs:
           hub_username: ${{ secrets.DOCKER_HUB_USERNAME }}
           hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Set up QEMU
-        id: qemu
-        uses: docker/setup-qemu-action@v3
-
       - name: Get Git Version
         run: |
           GIT_TAG=$(git tag --sort=-committerdate | head -n 1)
