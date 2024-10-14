@@ -153,9 +153,11 @@ jobs:
             GIT_TAG=${GIT_TAG}-SNAPSHOT
             echo "GIT_TAG=$GIT_TAG" >> $GITHUB_ENV
           fi
+          echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           git describe --dirty --always --tags
           git tag --sort=-committerdate | head -n 1
-          echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "list:"
+          git tag -l
 
       - name: Build Binaries
         uses: docker/build-push-action@v6
