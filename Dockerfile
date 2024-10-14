@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
 
 #####################################################
 ### Get TagLib
-FROM --platform=$BUILDPLATFORM alpine AS taglib-build
+FROM --platform=$BUILDPLATFORM public.ecr.aws/docker/library/alpine:3.20 AS taglib-build
 ARG TARGETPLATFORM
 ARG CROSS_TAGLIB_VERSION=2.0.2-1
 ENV CROSS_TAGLIB_RELEASES_URL=https://github.com/navidrome/cross-taglib/releases/download/v${CROSS_TAGLIB_VERSION}/
@@ -17,7 +17,7 @@ RUN PLATFORM=$(echo ${TARGETPLATFORM} | tr '/' '-') \
 
 #####################################################
 ### Build Navidrome UI
-FROM --platform=$BUILDPLATFORM node:20-alpine3.20 AS ui
+FROM --platform=$BUILDPLATFORM public.ecr.aws/docker/library/node:20-alpine3.20 AS ui
 WORKDIR /app
 
 # Install node dependencies
@@ -33,7 +33,7 @@ COPY --from=ui /build /build
 
 #####################################################
 ### Build Navidrome binary
-FROM --platform=$BUILDPLATFORM golang:1.23-bookworm AS base
+FROM --platform=$BUILDPLATFORM public.ecr.aws/docker/library/golang:1.23-bookworm AS base
 RUN apt-get update && apt-get install -y clang lld
 COPY --from=xx / /
 WORKDIR /workspace
@@ -92,7 +92,7 @@ COPY --from=build /out /
 
 #####################################################
 ### Build Final Image
-FROM --platform=$BUILDPLATFORM alpine:3.20 AS final
+FROM --platform=$BUILDPLATFORM public.ecr.aws/docker/library/alpine:3.20 AS final
 LABEL maintainer="deluan@navidrome.org"
 
 # Install ffmpeg and mpv
