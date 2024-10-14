@@ -134,15 +134,17 @@ jobs:
           PLATFORM=$(echo ${{ matrix.platform }} | tr '/' '_')
           echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
 
+      - uses: actions/checkout@v4
+
       - name: Set up QEMU
         id: qemu
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-
-      - uses: actions/checkout@v4
+      - uses: ./.github/actions/prepare-docker
+        id: docker
+        if: env.IS_LINUX == 'true'
+        with:
+          platform: ${{ env.PLATFORM }}
 
       - name: Get Git Version
         run: |
@@ -180,47 +182,6 @@ jobs:
           path: ./output
           retention-days: 7
 
-      - name: Check Docker Hub configuration
-        if: env.IS_LINUX == 'true'
-        run: |
-          if [ -z "${{vars.DOCKER_HUB_REPO}}${{secrets.DOCKER_USERNAME}}${{secrets.DOCKER_PASSWORD}}" ]; then
-            echo "DOCKER_HUB_REPO=none" >> $GITHUB_ENV
-            echo "DOCKER_HUB_ENABLED=false" >> $GITHUB_ENV
-          else
-            echo "DOCKER_HUB_REPO=${{vars.DOCKER_HUB_REPO}}" >> $GITHUB_ENV
-            echo "DOCKER_HUB_ENABLED=true" >> $GITHUB_ENV
-          fi
-
-      - name: Extract metadata for Docker image
-        if: env.IS_LINUX == 'true'
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          labels: |
-            maintainer=deluan
-          images: |
-            name=${{env.DOCKER_HUB_REPO}},enable=${{env.DOCKER_HUB_ENABLED}}
-            name=ghcr.io/${{ github.repository }}
-          tags: |
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=raw,value=develop,enable={{is_default_branch}}
-
-      - name: Login to Docker Hub
-        if: env.IS_LINUX == 'true' && env.DOCKER_HUB_ENABLED == 'true'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Login to GitHub Container Registry
-        if: env.IS_LINUX == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push image by digest
         id: push-image
         if: env.IS_LINUX == 'true'
@@ -229,7 +190,7 @@ jobs:
           context: .
           file: Dockerfile
           platforms: ${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.docker.outputs.labels }}
           build-args: |
             GIT_SHA=${{ env.GIT_SHA }}
             GIT_TAG=${{ env.GIT_TAG }}
