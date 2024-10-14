@@ -145,6 +145,10 @@ jobs:
         if: env.IS_LINUX == 'true'
         with:
           platform: ${{ env.PLATFORM }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          hub_repository: ${{ vars.DOCKER_HUB_REPO }}
+          hub_username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Get Git Version
         run: |
