@@ -167,30 +167,28 @@ jobs:
           git tag --sort=-committerdate | head -n 1
           echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-#      - name: Build
-#        uses: docker/build-push-action@v6
-#        with:
-#          context: .
-#          file: Dockerfile
-#          platforms: ${{ matrix.platform }}
-#          outputs: |
-#            type=local,dest=./output/${{ env.PLATFORM }}
-#          target: binary
-#          build-args: |
-#            GIT_SHA=${{ env.GIT_SHA }}
-#            GIT_TAG=${{ env.GIT_TAG }}
-#            CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
+      - name: Build Binaries
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          outputs: |
+            type=local,dest=./output/${{ env.PLATFORM }}
+          target: binary
+          build-args: |
+            GIT_SHA=${{ env.GIT_SHA }}
+            GIT_TAG=${{ env.GIT_TAG }}
+            CROSS_TAGLIB_VERSION=${{ env.CROSS_TAGLIB_VERSION }}
 
       - name: Check Docker Hub configuration
         if: env.IS_LINUX == 'true'
-        env:
-            DOCKER_HUB_REPO: ${{ vars.DOCKER_HUB_REPO }}
         run: |
-          if [ -z "$DOCKER_HUB_REPO${{ secrets.DOCKER_USERNAME }}${{ secrets.DOCKER_PASSWORD }}" ]; then
+          if [ -z "${{vars.DOCKER_HUB_REPO}}${{secrets.DOCKER_USERNAME}}${{secrets.DOCKER_PASSWORD}}" ]; then
             echo "DOCKER_HUB_REPO=none" >> $GITHUB_ENV
             echo "DOCKER_HUB_ENABLED=false" >> $GITHUB_ENV
           else
-            echo "DOCKER_HUB_REPO=$DOCKER_HUB_REPO" >> $GITHUB_ENV
+            echo "DOCKER_HUB_REPO=${{vars.DOCKER_HUB_REPO}}" >> $GITHUB_ENV
             echo "DOCKER_HUB_ENABLED=true" >> $GITHUB_ENV
           fi
 
@@ -359,69 +357,3 @@ jobs:
 #          name: installers
 #          path: wix/*.msi
 #          retention-days: 7
-#
-#  docker:
-#    name: Build and publish Docker images
-#    needs: [binaries]
-#    runs-on: ubuntu-latest
-#    env:
-#      DOCKER_IMAGE: ${{secrets.DOCKER_IMAGE}}
-#    steps:
-#      - name: Set up QEMU
-#        id: qemu
-#        uses: docker/setup-qemu-action@v3
-#        if: env.DOCKER_IMAGE != ''
-#
-#      - name: Set up Docker Buildx
-#        id: buildx
-#        uses: docker/setup-buildx-action@v3
-#        if: env.DOCKER_IMAGE != ''
-#
-#      - uses: actions/checkout@v4
-#        if: env.DOCKER_IMAGE != ''
-#
-#      - uses: actions/download-artifact@v4
-#        if: env.DOCKER_IMAGE != ''
-#        with:
-#          name: binaries
-#          path: dist
-#
-#      - name: Login to Docker Hub
-#        if: env.DOCKER_IMAGE != ''
-#        uses: docker/login-action@v3
-#        with:
-#          username: ${{ secrets.DOCKER_USERNAME }}
-#          password: ${{ secrets.DOCKER_PASSWORD }}
-#
-#      - name: Login to GitHub Container Registry
-#        if: env.DOCKER_IMAGE != ''
-#        uses: docker/login-action@v3
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Extract metadata for Docker
-#        if: env.DOCKER_IMAGE != ''
-#        id: meta
-#        uses: docker/metadata-action@v5
-#        with:
-#          labels: |
-#            maintainer=deluan
-#          images: |
-#            name=${{secrets.DOCKER_IMAGE}}
-#            name=ghcr.io/${{ github.repository }}
-#          tags: |
-#            type=ref,event=pr
-#            type=semver,pattern={{version}}
-#            type=raw,value=develop,enable={{is_default_branch}}
-#
-#      - name: Build and Push
-#        if: env.DOCKER_IMAGE != ''
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: .
-#          file: .github/workflows/pipeline.dockerfile
-#          platforms: linux/amd64,linux/386,linux/arm/v6,linux/arm/v7,linux/arm64
-#          push: true
-#          tags: ${{ steps.meta.outputs.tags }}
