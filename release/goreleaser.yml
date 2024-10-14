@@ -11,14 +11,14 @@ builds:
 
     # All available targets compiled by the Dockerfile
     targets:
-      - darwin_amd64
-      - darwin_arm64
-      - linux_386
+#      - darwin_amd64
+#      - darwin_arm64
+#      - linux_386
       - linux_amd64
-      - linux_arm_v5
-      - linux_arm_v6
-      - linux_arm_v7
-      - linux_arm64
+#      - linux_arm_v5
+#      - linux_arm_v6
+#      - linux_arm_v7
+#      - linux_arm64
       - windows_386
       - windows_amd64
 
@@ -50,6 +50,11 @@ release:
 
     * Read installation instructions on our [website](https://www.navidrome.org/docs/installation/).
     * Reach out on [Discord](https://discord.gg/xh7j7yF), [Reddit](https://www.reddit.com/r/navidrome/) and [Twitter](https://twitter.com/navidrome)!
+  extra_files:
+    - glob: binaries/navidrome_386.msi
+      name_template: navidrome_{{.Version}}_windows_386_installer.msi
+    - glob: binaries/navidrome_amd64.msi
+      name_template: navidrome_{{.Version}}_windows_amd64_installer.msi
 
 changelog:
   sort: asc
