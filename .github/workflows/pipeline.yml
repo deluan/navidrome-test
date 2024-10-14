@@ -275,7 +275,7 @@ jobs:
 
 
   msi:
-    name: Build MSI files
+    name: Build Windows Installers
     needs: [build]
     runs-on: ubuntu-24.04
     steps:
@@ -292,9 +292,11 @@ jobs:
           pattern: navidrome-windows*
           merge-multiple: true
 
-      - run: ls -lR ./binaries
+      - run: |
+          pwd
+          ls -lR ./binaries
 
-      - name: Build MSI
+      - name: Build MSI files
         run: |
           sudo apt-get install -y wixl jq
 
@@ -309,7 +311,7 @@ jobs:
           cp -r $GITHUB_WORKSPACE/wix/386 $GITHUB_WORKSPACE/wix/amd64
 
           cp $GITHUB_WORKSPACE/binaries/windows_386/navidrome.exe $GITHUB_WORKSPACE/wix/386
-          cp $GITHUB_WORKSPACE/binaries/windows_amd64/navidrome.exe $GITHUB_WORKSPACE/wix/386
+          cp $GITHUB_WORKSPACE/binaries/windows_amd64/navidrome.exe $GITHUB_WORKSPACE/wix/amd64
 
           # workaround for wixl WixVariable not working to override bmp locations
           sudo cp $GITHUB_WORKSPACE/wix/bmp/banner.bmp /usr/share/wixl-*/ext/ui/bitmaps/bannrbmp.bmp
@@ -323,7 +325,8 @@ jobs:
 
           ls -la $GITHUB_WORKSPACE/wix/*.msi
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload MSI files
+        uses: actions/upload-artifact@v4
         with:
           name: navidrome-msi-installers
           path: wix/*.msi
