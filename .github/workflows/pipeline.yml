@@ -297,7 +297,13 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: digest-*
-          failOnError: false
+#          failOnError:
+
+      - name: Delete artifacts manually
+        run: |
+          for artifact in $(gh api repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[] | select(.name | startswith("digest-")) | .id'); do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$artifact
+          done
 
 #
 #  msi:
